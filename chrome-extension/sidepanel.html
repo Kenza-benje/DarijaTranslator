@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Darija Translator</title>
+  <link rel="stylesheet" href="sidepanel.css">
+  <script src="speech.js" defer></script>
+  <script src="sidepanel.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><span class="eyebrow">ENGLISH → الدارجة</span><h1>Darija Translator</h1>
+      <p>Select text on a page, right-click, and choose “Translate to Darija”.</p></header>
+    <form id="credentials" autocomplete="off">
+      <fieldset>
+        <legend>WildFly application account</legend>
+        <p>Your credentials stay in this panel’s memory until it closes.</p>
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="off" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="off" required>
+        <button type="submit">Use credentials &amp; translate</button>
+      </fieldset>
+    </form>
+    <button id="change-account" type="button" class="secondary" hidden>Change account</button>
+    <form id="translation-form">
+      <label for="english">English text</label>
+      <textarea id="english" rows="6" placeholder="Enter English text…" required></textarea>
+      <button id="translate" type="submit">Translate to Darija</button>
+    </form>
+    <div class="speech-actions" role="group" aria-label="Speech controls">
+<button type="button" class="secondary" id="microphone" aria-label="Translate English speech">Microphone</button>
+<button type="button" class="secondary" id="stop-speech" aria-label="Stop listening">Stop</button>
+</div><p id="speech-status" role="status" aria-live="polite"></p>
+    <p id="loading" role="status" hidden><span class="spinner" aria-hidden="true"></span> Translating…</p>
+    <p id="error" role="alert" hidden></p>
+    <section aria-labelledby="result-heading">
+      <h2 id="result-heading">Moroccan Darija</h2>
+      <div id="result" lang="ary" dir="rtl" aria-live="polite"></div>
+      <button id="copy" type="button" class="secondary" disabled>Copy translation</button>
+      <p id="copy-status" role="status"></p>
+    </section>
+  </main>
+</body>
+</html>

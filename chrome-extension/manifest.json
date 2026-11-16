@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Darija Translator",
+  "version": "1.0.0",
+  "description": "Translate selected English text into Moroccan Darija.",
+  "minimum_chrome_version": "116",
+  "permissions": ["sidePanel", "contextMenus", "storage"],
+  "host_permissions": ["http://localhost/*","http://192.168.1.4/*"],
+  "background": { "service_worker": "service-worker.js" },
+  "action": { "default_title": "Open Darija Translator" },
+  "side_panel": { "default_path": "sidepanel.html" }
+}

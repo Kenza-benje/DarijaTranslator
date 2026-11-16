@@ -1,0 +1,72 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor #2475D0
+skinparam nodeBorderColor #9BB9D6
+skinparam nodeBackgroundColor #F3F8FD
+skinparam artifactBorderColor #9BB9D6
+skinparam artifactBackgroundColor #FFFFFF
+skinparam componentBorderColor #9BB9D6
+skinparam componentBackgroundColor #FFFFFF
+skinparam cloudBorderColor #9BB9D6
+skinparam cloudBackgroundColor #EAF4FF
+skinparam linetype ortho
+left to right direction
+
+title DarijaTranslator - Deployment Diagram (Final Features)
+
+node "Development laptop / Windows\nHost LAN address: configurable" as laptop {
+  node "Chrome browser" as browser {
+    artifact "PHP web page\nEnglish text + microphone STT" as phpUI
+    artifact "Chrome extension / Side Panel\nSelected text + microphone STT" as extension
+  }
+  node "PHP built-in web server\n127.0.0.1:8000" as phpServer {
+    artifact "clients/php/index.php" as phpBackend
+  }
+  node "Python runtime" as py {
+    artifact "translator_client.py\nText-only command-line client" as pythonClient
+  }
+  node "WildFly 41 / Jakarta EE\nHost LAN IP:8080" as wildfly {
+    component "Elytron / Undertow\nHTTP Basic Authentication" as auth
+    artifact "DarijaTranslator.war" as war
+    component "TranslatorResource\nGET /hello | POST /translate" as resource
+    component "GeminiService\nAPI request / retries / JSON parsing" as service
+    war ..> resource : deploys
+    war ..> service : contains
+    auth --> resource : authorizes POST
+    resource --> service : translate(text)
+  }
+}
+
+node "iPhone / iOS" as ios {
+  artifact "React Native / Expo Go\nText input and Darija output" as mobile
+}
+
+cloud "Google Gemini API\nExternal HTTPS service" as gemini
+
+phpUI --> phpBackend : HTTP to local PHP server
+phpBackend --> auth : HTTP POST + Basic Auth + JSON
+extension --> auth : Direct HTTP POST + Basic Auth + JSON
+pythonClient --> auth : HTTP POST + Basic Auth + JSON
+mobile --> auth : LAN HTTP POST + Basic Auth + JSON
+service --> gemini : HTTPS generateContent
+
+note bottom of browser
+  Browser SpeechRecognition converts English audio to text.
+  Recognition availability and processing depend on the browser.
+  Only recognized English text is sent for translation.
+  Darija output is written text; no speech synthesis or spoken output.
+end note
+note bottom of wildfly
+  Endpoint: /DarijaTranslator/api/translator/translate
+  POST requires translator-user; GET /hello is public.
+  LAN IP changes with Wi-Fi and is configuration, not architecture.
+  Use HTTPS rather than cleartext Basic Auth in production.
+end note
+note bottom of ios
+  Current Expo Go client supports text translation only.
+  iPhone microphone recognition is not implemented.
+end note
+@enduml

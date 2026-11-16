@@ -1,0 +1,61 @@
+@startuml
+!theme plain
+skinparam backgroundColor #F7F9FC
+skinparam shadowing false
+skinparam defaultFontName Inter
+skinparam classAttributeIconSize 0
+skinparam classBorderColor #9CB6D4
+skinparam classBackgroundColor #FFFFFF
+skinparam ArrowColor #2874DC
+skinparam packageBorderColor #CCDCEC
+skinparam packageBackgroundColor #F8FBFF
+skinparam noteBackgroundColor #EEF5FF
+skinparam noteBorderColor #A6C7EF
+hide empty methods
+left to right direction
+
+title DarijaTranslator — UML Class Diagram
+
+package "com.darijatranslator" {
+    class RestApplication <<JAX-RS configuration>> {
+      + {static} @ApplicationPath("/api")
+    }
+    class TranslatorResource <<REST resource>> {
+      ~ geminiService : GeminiService
+      --
+      + hello() : String
+      + translate(body : String) : Response
+      - error(status : int, message : String) : Response
+    }
+    class GeminiService <<ApplicationScoped>> {
+      - client : HttpClient
+      - {static} MAX_RETRIES : int = 2
+      --
+      + translate(text : String) : String
+      - sendWithRetries(request : HttpRequest, model : String) : HttpResponse<String>
+      - logUpstreamError(response : HttpResponse<String>, model : String, attempt : int) : void
+    }
+    class "GeminiService.TranslationException" as TranslationException <<nested exception>> {
+      - status : int
+      --
+      + getStatus() : int
+    }
+    RestApplication -[hidden]right- TranslatorResource
+    TranslatorResource --> "1" GeminiService : @Inject
+    GeminiService ..> TranslationException : throws / nested
+    TranslatorResource ..> TranslationException : catches
+}
+class "jakarta.ws.rs.core.Application" as JakartaApplication <<framework>>
+RestApplication --|> JakartaApplication
+note bottom of TranslatorResource
+  @Path("/translator")
+  GET /hello: public
+  POST /translate: protected by WildFly
+  Validates request JSON and maps errors to HTTP responses
+end note
+note right of GeminiService
+  HTTPS Google generateContent
+  Configured by GEMINI_API_KEY / GEMINI_MODEL
+  Retries transient HTTP 429, 503 and timeouts
+end note
+@enduml

@@ -1,0 +1,93 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam SequenceArrowColor #2475D0
+skinparam SequenceLifeLineBorderColor #B7CBDD
+skinparam ParticipantBorderColor #9BB9D6
+skinparam ParticipantBackgroundColor #F3F8FD
+skinparam SequenceGroupBackgroundColor #EEF6FF
+skinparam SequenceGroupBorderColor #A7C3DD
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 100
+
+title DarijaTranslator - Text / Microphone-to-Darija Sequence
+
+autonumber
+actor User
+participant "Browser UI\n(PHP page or Chrome side panel)" as UI
+participant "Browser SpeechRecognition\n(English STT)" as STT
+participant "PHP runtime\n(PHP client only)" as PHP
+participant "WildFly / Elytron\nAuthentication" as Security
+participant "TranslatorResource" as REST
+participant "GeminiService" as Service
+participant "Google Gemini API" as Gemini
+
+alt User speaks English (PHP / Chrome)
+  User -> UI : Click microphone and speak
+  UI -> STT : start recognition (en-US)
+  alt Permission denied / unsupported / no speech
+    STT --> UI : recognition error
+    UI --> User : Show message; allow typing
+  else Speech recognized
+    STT --> UI : English transcript
+    UI --> User : Display/edit recognized text
+  end
+else User types or selects text
+  User -> UI : Enter English or select webpage text
+end
+
+opt English text available and user or app requests translation
+  alt PHP web client
+    UI -> PHP : POST form/request with English text
+    PHP -> Security : POST /DarijaTranslator/api/translator/translate\nBasic Auth + JSON
+  else Chrome extension
+    UI -> Security : POST /DarijaTranslator/api/translator/translate\nBasic Auth + JSON
+  end
+
+  alt Missing/invalid credentials or missing role
+    Security --> UI : 401 Unauthorized / 403 Forbidden\n(relayed by PHP for PHP client)
+    UI --> User : Show authentication error
+  else Authorized (translator-user)
+    Security -> REST : Dispatch POST /translate
+    activate REST
+    REST -> REST : Validate JSON and non-empty text
+    alt Invalid JSON / missing or blank text
+      REST --> UI : 400 {"error":"..."}\n(relayed if PHP)
+      UI --> User : Display validation error
+    else Valid English text
+      REST -> Service : translate(text)
+      activate Service
+      Service -> Gemini : HTTPS generateContent\n(API key in server environment)
+      activate Gemini
+      opt Transient 429 / 503 or timeout
+        loop Up to 2 retries with backoff
+          Service -> Gemini : Retry generateContent
+          Gemini --> Service : Response or timeout
+        end
+      end
+      alt Success (initial request or a retry)
+        Gemini --> Service : 200, candidates[]
+        Service -> Service : Check finishReason; extract text
+        Service --> REST : Moroccan Darija translation
+        REST --> UI : 200 {"translation":"..."}\n(relayed if PHP)
+        UI --> User : Display written Darija / copy option
+      else Failure or invalid Gemini response
+        Gemini --> Service : Upstream failure / invalid data
+        Service --> REST : TranslationException
+        REST --> UI : JSON error (e.g. 502 / 503 / 504)\n(relayed if PHP)
+        UI --> User : Display error; allow retry
+      end
+      deactivate Gemini
+      deactivate Service
+    end
+    deactivate REST
+  end
+end
+
+note over UI, STT
+  Darija is returned as written text only; no automatic spoken output.
+  Microphone is an INPUT feature in PHP and Chrome only.
+end note
+@enduml

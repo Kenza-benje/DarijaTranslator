@@ -1,0 +1,27 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #18332f; background: #f4f7f6; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 560px; margin: auto; padding: 24px 18px; }
+h1 { margin: 8px 0; font-size: 25px; }
+h2 { font-size: 16px; }
+p { color: #526763; font-size: 13px; line-height: 1.6; }
+.eyebrow { color: #267a65; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+form, section { margin-top: 24px; }
+fieldset { border: 1px solid #cbdad5; border-radius: 10px; padding: 16px; background: white; }
+legend, label { font-size: 13px; font-weight: 650; }
+label { display: block; margin: 12px 0 7px; }
+input, textarea { width: 100%; border: 1px solid #b5c9c1; border-radius: 7px; padding: 11px; font: inherit; background: white; color: inherit; }
+textarea { resize: vertical; }
+input:focus, textarea:focus, button:focus-visible { outline: 2px solid #19856b; outline-offset: 2px; }
+button { margin-top: 12px; padding: 11px 16px; border: 0; border-radius: 7px; background: #126b55; color: white; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.secondary { background: #dfece6; color: #184e3e; }
+#result { min-height: 100px; padding: 16px; border: 1px solid #cbdad5; border-radius: 10px; background: white; font-size: 22px; line-height: 1.9; white-space: pre-wrap; overflow-wrap: anywhere; }
+#error { color: #9e2730; background: #ffeded; padding: 12px; border-radius: 7px; }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #bed5cc; border-top-color: #126b55; border-radius: 50%; animation: spin 1s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+.speech-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.speech-actions button { flex: 1; }
+#speech-status { font-size: 13px; line-height: 1.5; }
