@@ -334,19 +334,6 @@ For PHP and Chrome, test Stop during microphone recognition and confirm that typ
 - `.gitignore` excludes local secrets, private-key/credential-store formats, dependencies, caches, logs, build output, and IDE files while keeping the mobile lockfile, UML assets, wrapper configuration, and environment examples eligible for tracking. No IDE files, dependencies, caches, or build output are currently in the index. No commits exist yet, so there is no committed history to inspect or rewrite.
 - A read-only working-tree and index review found no obvious real Gemini keys, literal Basic credentials, private keys, or tokens. Passwords in regression fixtures are deliberately fake. No `.env`, private-key files, or sensitive log files were found outside excluded dependency/Git internals. This review is a pattern-based check, not a guarantee against every possible secret format. No credential rotation is indicated by the findings.
 
-## Screenshots
-
-Application screenshots are not present. Capture the following with test data and redact account names, backend addresses, and any sensitive content before adding real relative image links:
-
-| Placeholder | Capture required |
-| --- | --- |
-| PHP — pending | English input and a successful Darija result |
-| Python — pending | CLI translation with credentials excluded/redacted |
-| Chrome — pending | Highlighted webpage text and translated side panel |
-| Mobile — pending | Expo Go input and RTL output on the intended phone |
-
-Mobile icon/splash assets are not screenshots. No fake screenshot files or broken image links are supplied.
-
 
 ## Known limitations and future improvements
 
